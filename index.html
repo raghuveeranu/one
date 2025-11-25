@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tollywood Movie Ticket Booking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -12,23 +13,81 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        :root {
+            --primary: #d32f2f;
+            --primary-dark: #b71c1c;
+            --secondary: #ffc107;
+            --dark: #333;
+            --light: #f5f5f5;
+            --gray: #666;
+            --white: #fff;
+        }
+        
         body {
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
         }
         
         header {
-            background: linear-gradient(to right, #ff0000, #ff6b6b);
-            color: white;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: var(--white);
             padding: 1.5rem;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1489599809505-f2d4c3f70800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80') center/cover;
+            opacity: 0.2;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--primary);
         }
         
         .movie-grid {
@@ -39,21 +98,28 @@
         }
         
         .movie-card {
-            background: white;
+            background: var(--white);
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
         }
         
         .movie-card:hover {
             transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
         
         .movie-poster {
             width: 100%;
             height: 350px;
             object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .movie-card:hover .movie-poster {
+            transform: scale(1.05);
         }
         
         .movie-info {
@@ -63,11 +129,23 @@
         .movie-title {
             font-size: 1.4rem;
             margin-bottom: 0.5rem;
-            color: #d32f2f;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .rating {
+            background: var(--secondary);
+            color: var(--dark);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
         
         .movie-details {
-            color: #666;
+            color: var(--gray);
             margin-bottom: 1rem;
             font-size: 0.9rem;
         }
@@ -80,11 +158,13 @@
         }
         
         .showtime {
-            background: #f0f0f0;
+            background: var(--light);
             padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            border: 1px solid #ddd;
         }
         
         .showtime:hover {
@@ -92,13 +172,14 @@
         }
         
         .showtime.selected {
-            background: #d32f2f;
-            color: white;
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
         }
         
         .book-btn {
-            background: #d32f2f;
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border: none;
             padding: 0.8rem 1.5rem;
             border-radius: 5px;
@@ -107,10 +188,56 @@
             font-size: 1rem;
             font-weight: bold;
             transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         .book-btn:hover {
-            background: #b71c1c;
+            background: var(--primary-dark);
+        }
+        
+        .maven-info {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 3rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .maven-title {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .maven-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .maven-structure, .maven-dependencies {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .maven-structure h3, .maven-dependencies h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        pre {
+            background: var(--dark);
+            color: var(--light);
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
         }
         
         .modal {
@@ -124,15 +251,28 @@
             z-index: 100;
             align-items: center;
             justify-content: center;
+            padding: 1rem;
         }
         
         .modal-content {
-            background: white;
+            background: var(--white);
             padding: 2rem;
             border-radius: 10px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            animation: modalAppear 0.3s ease;
+        }
+        
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .modal-header {
@@ -140,6 +280,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
         }
         
         .close-btn {
@@ -147,7 +289,12 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #666;
+            color: var(--gray);
+            transition: color 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: var(--primary);
         }
         
         .form-group {
@@ -158,6 +305,7 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
+            color: var(--dark);
         }
         
         input, select {
@@ -166,11 +314,17 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
         }
         
         .submit-btn {
-            background: #d32f2f;
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border: none;
             padding: 1rem;
             border-radius: 5px;
@@ -179,10 +333,14 @@
             font-size: 1.1rem;
             font-weight: bold;
             transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         .submit-btn:hover {
-            background: #b71c1c;
+            background: var(--primary-dark);
         }
         
         .confirmation {
@@ -201,8 +359,8 @@
         }
         
         footer {
-            background: #333;
-            color: white;
+            background: var(--dark);
+            color: var(--white);
             text-align: center;
             padding: 2rem;
             margin-top: 3rem;
@@ -216,18 +374,85 @@
             .container {
                 padding: 1rem;
             }
+            
+            .maven-content {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Tollywood Movie Ticket Booking</h1>
-        <p>Book tickets for the latest Telugu blockbusters</p>
+        <div class="header-bg"></div>
+        <div class="header-content">
+            <h1><i class="fas fa-film"></i> Tollywood Movie Ticket Booking</h1>
+            <p class="tagline">Book tickets for the latest Telugu blockbusters</p>
+        </div>
     </header>
     
     <div class="container">
+        <h2 class="section-title">Now Showing</h2>
         <div class="movie-grid" id="movieGrid">
             <!-- Movie cards will be dynamically generated here -->
+        </div>
+        
+        <div class="maven-info">
+            <h2 class="maven-title"><i class="fas fa-project-diagram"></i> Maven Project Structure</h2>
+            <div class="maven-content">
+                <div class="maven-structure">
+                    <h3>Project Structure</h3>
+                    <pre>
+tollywood-booking/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── tolywood/
+│   │   │           ├── controller/
+│   │   │           ├── model/
+│   │   │           ├── service/
+│   │   │           └── BookingApplication.java
+│   │   └── resources/
+│   │       ├── static/
+│   │       ├── templates/
+│   │       └── application.properties
+│   └── test/
+│       └── java/
+│           └── com/
+│               └── tolywood/
+├── target/
+└── pom.xml
+                    </pre>
+                </div>
+                <div class="maven-dependencies">
+                    <h3>Key Dependencies</h3>
+                    <pre>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;mysql&lt;/groupId&gt;
+        &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+        &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+                    </pre>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -268,19 +493,20 @@
                     <label for="phone">Phone Number</label>
                     <input type="tel" id="phone" placeholder="Enter your phone number">
                 </div>
-                <button class="submit-btn" id="submitBooking">Book Tickets</button>
+                <button class="submit-btn" id="submitBooking"><i class="fas fa-ticket-alt"></i> Book Tickets</button>
             </div>
             <div class="confirmation" id="confirmation">
-                <h2>Booking Confirmed!</h2>
+                <h2><i class="fas fa-check-circle"></i> Booking Confirmed!</h2>
                 <p>Your tickets have been successfully booked.</p>
                 <p>You will receive a confirmation email shortly.</p>
-                <button class="submit-btn" id="newBooking">Book Another Ticket</button>
+                <button class="submit-btn" id="newBooking"><i class="fas fa-plus"></i> Book Another Ticket</button>
             </div>
         </div>
     </div>
     
     <footer>
         <p>&copy; 2023 Tollywood Movie Booking. All rights reserved.</p>
+        <p>Powered by Maven & Spring Boot</p>
     </footer>
 
     <script>
@@ -369,18 +595,17 @@
                 movieCard.innerHTML = `
                     <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
                     <div class="movie-info">
-                        <h3 class="movie-title">${movie.title}</h3>
+                        <h3 class="movie-title">${movie.title} <span class="rating">${movie.rating}</span></h3>
                         <div class="movie-details">
                             <p><strong>Genre:</strong> ${movie.genre}</p>
                             <p><strong>Duration:</strong> ${movie.duration}</p>
-                            <p><strong>Rating:</strong> ${movie.rating}</p>
                         </div>
                         <div class="showtimes">
                             ${movie.showtimes.map(time => 
                                 `<div class="showtime" data-movie="${movie.id}" data-time="${time}">${time}</div>`
                             ).join('')}
                         </div>
-                        <button class="book-btn" data-movie="${movie.id}">Book Tickets</button>
+                        <button class="book-btn" data-movie="${movie.id}"><i class="fas fa-ticket-alt"></i> Book Tickets</button>
                     </div>
                 `;
                 
@@ -447,6 +672,13 @@
 
         // Event listeners
         closeModal.addEventListener('click', closeBookingModal);
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === bookingModal) {
+                closeBookingModal();
+            }
+        });
         
         submitBooking.addEventListener('click', function(e) {
             e.preventDefault();
