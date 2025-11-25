@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tollywood Movie Ticket Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(to right, #ff0000, #ff6b6b);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .movie-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .movie-poster {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+        
+        .movie-info {
+            padding: 1.5rem;
+        }
+        
+        .movie-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: #d32f2f;
+        }
+        
+        .movie-details {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .showtimes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .showtime {
+            background: #f0f0f0;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .showtime:hover {
+            background: #e0e0e0;
+        }
+        
+        .showtime.selected {
+            background: #d32f2f;
+            color: white;
+        }
+        
+        .book-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .book-btn:hover {
+            background: #b71c1c;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .submit-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background: #b71c1c;
+        }
+        
+        .confirmation {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .confirmation h2 {
+            color: #4caf50;
+            margin-bottom: 1rem;
+        }
+        
+        .confirmation p {
+            margin-bottom: 1rem;
+        }
+        
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .movie-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tollywood Movie Ticket Booking</h1>
+        <p>Book tickets for the latest Telugu blockbusters</p>
+    </header>
+    
+    <div class="container">
+        <div class="movie-grid" id="movieGrid">
+            <!-- Movie cards will be dynamically generated here -->
+        </div>
+    </div>
+    
+    <div class="modal" id="bookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Book Tickets</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div id="bookingForm">
+                <div class="form-group">
+                    <label for="movieName">Movie</label>
+                    <input type="text" id="movieName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="showtime">Showtime</label>
+                    <input type="text" id="showtime" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="tickets">Number of Tickets</label>
+                    <select id="tickets">
+                        <option value="1">1 Ticket</option>
+                        <option value="2">2 Tickets</option>
+                        <option value="3">3 Tickets</option>
+                        <option value="4">4 Tickets</option>
+                        <option value="5">5 Tickets</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter your phone number">
+                </div>
+                <button class="submit-btn" id="submitBooking">Book Tickets</button>
+            </div>
+            <div class="confirmation" id="confirmation">
+                <h2>Booking Confirmed!</h2>
+                <p>Your tickets have been successfully booked.</p>
+                <p>You will receive a confirmation email shortly.</p>
+                <button class="submit-btn" id="newBooking">Book Another Ticket</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2023 Tollywood Movie Booking. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Movie data with image URLs, showtimes, and details
+        const movies = [
+            {
+                id: 1,
+                title: "Pushpa: The Rule",
+                genre: "Action, Drama",
+                duration: "2h 45m",
+                rating: "4.5/5",
+                poster: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+                showtimes: ["10:00 AM", "1:30 PM", "4:45 PM", "8:00 PM", "11:15 PM"]
+            },
+            {
+                id: 2,
+                title: "Salaar: Part 1 - Ceasefire",
+                genre: "Action, Thriller",
+                duration: "2h 55m",
+                rating: "4.3/5",
+                poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1025&q=80",
+                showtimes: ["9:30 AM", "12:45 PM", "4:00 PM", "7:15 PM", "10:30 PM"]
+            },
+            {
+                id: 3,
+                title: "RRR",
+                genre: "Action, Drama",
+                duration: "3h 7m",
+                rating: "4.8/5",
+                poster: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1156&q=80",
+                showtimes: ["11:00 AM", "2:30 PM", "6:00 PM", "9:30 PM"]
+            },
+            {
+                id: 4,
+                title: "Uppena",
+                genre: "Romance, Drama",
+                duration: "2h 30m",
+                rating: "4.2/5",
+                poster: "https://images.unsplash.com/photo-1489599809505-f2d4c3f70800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80",
+                showtimes: ["10:15 AM", "1:45 PM", "5:15 PM", "8:45 PM"]
+            },
+            {
+                id: 5,
+                title: "Ala Vaikunthapurramuloo",
+                genre: "Action, Comedy",
+                duration: "2h 40m",
+                rating: "4.4/5",
+                poster: "https://images.unsplash.com/photo-1489599809505-f2d4c3f70800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80",
+                showtimes: ["9:00 AM", "12:30 PM", "4:00 PM", "7:30 PM", "11:00 PM"]
+            },
+            {
+                id: 6,
+                title: "Maharshi",
+                genre: "Drama, Action",
+                duration: "2h 50m",
+                rating: "4.1/5",
+                poster: "https://images.unsplash.com/photo-1535016120720-40c646be5580?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
+                showtimes: ["10:30 AM", "2:00 PM", "5:30 PM", "9:00 PM"]
+            }
+        ];
+
+        // DOM elements
+        const movieGrid = document.getElementById('movieGrid');
+        const bookingModal = document.getElementById('bookingModal');
+        const closeModal = document.getElementById('closeModal');
+        const bookingForm = document.getElementById('bookingForm');
+        const confirmation = document.getElementById('confirmation');
+        const submitBooking = document.getElementById('submitBooking');
+        const newBooking = document.getElementById('newBooking');
+        const modalTitle = document.getElementById('modalTitle');
+        const movieNameInput = document.getElementById('movieName');
+        const showtimeInput = document.getElementById('showtime');
+
+        // Variables to store current booking details
+        let currentMovie = null;
+        let currentShowtime = null;
+
+        // Generate movie cards
+        function generateMovieCards() {
+            movieGrid.innerHTML = '';
+            
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                
+                movieCard.innerHTML = `
+                    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-details">
+                            <p><strong>Genre:</strong> ${movie.genre}</p>
+                            <p><strong>Duration:</strong> ${movie.duration}</p>
+                            <p><strong>Rating:</strong> ${movie.rating}</p>
+                        </div>
+                        <div class="showtimes">
+                            ${movie.showtimes.map(time => 
+                                `<div class="showtime" data-movie="${movie.id}" data-time="${time}">${time}</div>`
+                            ).join('')}
+                        </div>
+                        <button class="book-btn" data-movie="${movie.id}">Book Tickets</button>
+                    </div>
+                `;
+                
+                movieGrid.appendChild(movieCard);
+            });
+            
+            // Add event listeners to showtimes and book buttons
+            document.querySelectorAll('.showtime').forEach(showtime => {
+                showtime.addEventListener('click', function() {
+                    // Remove selected class from all showtimes
+                    document.querySelectorAll('.showtime').forEach(st => {
+                        st.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked showtime
+                    this.classList.add('selected');
+                    
+                    // Store current selection
+                    currentMovie = this.getAttribute('data-movie');
+                    currentShowtime = this.getAttribute('data-time');
+                });
+            });
+            
+            document.querySelectorAll('.book-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const movieId = this.getAttribute('data-movie');
+                    
+                    // If no showtime is selected, use the first one
+                    if (!currentMovie || currentMovie !== movieId) {
+                        currentMovie = movieId;
+                        currentShowtime = movies.find(m => m.id == movieId).showtimes[0];
+                    }
+                    
+                    openBookingModal();
+                });
+            });
+        }
+
+        // Open booking modal
+        function openBookingModal() {
+            const movie = movies.find(m => m.id == currentMovie);
+            modalTitle.textContent = `Book Tickets - ${movie.title}`;
+            movieNameInput.value = movie.title;
+            showtimeInput.value = currentShowtime;
+            
+            bookingModal.style.display = 'flex';
+        }
+
+        // Close booking modal
+        function closeBookingModal() {
+            bookingModal.style.display = 'none';
+            bookingForm.style.display = 'block';
+            confirmation.style.display = 'none';
+        }
+
+        // Submit booking
+        function submitBookingForm() {
+            // In a real application, you would send this data to a server
+            // For this demo, we'll just show the confirmation
+            
+            bookingForm.style.display = 'none';
+            confirmation.style.display = 'block';
+        }
+
+        // Event listeners
+        closeModal.addEventListener('click', closeBookingModal);
+        
+        submitBooking.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Basic form validation
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!name || !email || !phone) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            submitBookingForm();
+        });
+        
+        newBooking.addEventListener('click', function() {
+            closeBookingModal();
+            
+            // Reset form
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('tickets').value = '1';
+            
+            // Clear selected showtimes
+            document.querySelectorAll('.showtime').forEach(st => {
+                st.classList.remove('selected');
+            });
+            
+            currentMovie = null;
+            currentShowtime = null;
+        });
+
+        // Initialize the page
+        generateMovieCards();
+    </script>
+</body>
+</html>
